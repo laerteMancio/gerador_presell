@@ -1,14 +1,14 @@
 {
-  "name": "backend-eccomerce-fones",
+  "name": "presell-links",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend para gerenciamento de presell links",
+  "main": "api/server.js",
+  "type": "commonjs",
   "scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "start": "node api/server.js",
-  "dev": "nodemon api/server.js",
-  "dev-local": "nodemon api/server.local.js"
-},
+    "start": "node api/server.js",
+    "dev": "nodemon api/server.js",
+    "dev-local": "nodemon api/server.local.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.0",
     "serverless-http": "^3.2.0"

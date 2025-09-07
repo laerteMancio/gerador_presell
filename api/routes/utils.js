@@ -1,10 +1,9 @@
-import mysql from "mysql2/promise";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+// utils.js
+const mysql = require("mysql2/promise");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
-dotenv.config();
-
-export const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Pool de conexões
 const pool = mysql.createPool({
@@ -18,12 +17,12 @@ const pool = mysql.createPool({
 });
 
 // Pegar conexão do pool
-export async function getConnection() {
+async function getConnection() {
   return pool.getConnection();
 }
 
 // Middleware de autenticação
-export function autenticar(req, res, next) {
+function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ message: "Token não fornecido" });
 
@@ -38,8 +37,10 @@ export function autenticar(req, res, next) {
 }
 
 // Middleware admin
-export function apenasAdmin(req, res, next) {
+function apenasAdmin(req, res, next) {
   if (!req.usuario || req.usuario.role !== "admin")
     return res.status(403).json({ message: "Acesso negado" });
   next();
 }
+
+module.exports = { getConnection, JWT_SECRET, autenticar, apenasAdmin };

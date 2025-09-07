@@ -11,6 +11,8 @@ const usuariosRoutes = require("./routes/usuarios");
 
 
 
+
+
 dotenv.config();
 
 const app = express();
@@ -31,6 +33,7 @@ app.use("/login", login);
 app.use("/register-public", registerPublic);
 app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
+
 
 
 
