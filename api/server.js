@@ -20,7 +20,10 @@ const app = express();
 // ------------------ CORS ------------------
 // Permite localhost para desenvolvimento
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://frontend-gerenciador-campanhas.vercel.app"
+  ],
   credentials: true
 }));
 
