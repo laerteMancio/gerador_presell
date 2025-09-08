@@ -4,14 +4,16 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
+
 // Rotas
 const generateAuth = require("./routes/generate-auth");
 const links = require("./routes/links");
 const login = require("./routes/login");
 const registerPublic = require("./routes/register-public");
 const usuariosRoutes = require("./routes/usuarios");
-
 const publishPresellRouter = require("./routes/publishPresell");
+
+const deployRoute = require("./routes/deploy");
 
 dotenv.config();
 
@@ -37,8 +39,11 @@ app.use("/login", login);
 app.use("/register-public", registerPublic);
 app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
-
 app.use("/publicar-presell", publishPresellRouter);
+
+app.use("/vercel", deployRoute);
+
+
 
 // ------------------ Export ------------------
 // Para Vercel, sem listen()
