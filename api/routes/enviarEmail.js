@@ -1,11 +1,12 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
-const path = require("path");
-
-const upload = multer({ dest: "uploads/" }); // pasta temporária para salvar arquivos
 
 const router = express.Router();
+
+// Usar multer com armazenamento em memória
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 router.post("/", upload.array("attachments"), async (req, res) => {
     const { to, subject, text } = req.body;
@@ -28,10 +29,10 @@ router.post("/", upload.array("attachments"), async (req, res) => {
             }
         });
 
-        // Mapear os arquivos recebidos
-        const attachments = req.files.map(file => ({
+        // Mapear os arquivos recebidos (buffer na memória)
+        const attachments = (req.files || []).map(file => ({
             filename: file.originalname,
-            path: file.path,
+            content: file.buffer,
             contentType: file.mimetype
         }));
 
