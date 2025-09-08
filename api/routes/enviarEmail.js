@@ -37,9 +37,9 @@ router.post("/", upload.array("attachments"), async (req, res) => {
         }));
 
         const info = await transporter.sendMail({
-            from: '"NFE - Agiltec" <gabriela@agiltec.com.br>',
+            from: '"NFE - Agiltec" <nfe@agiltec.com.br>',
             to,
-            cc: 'gabriela@agiltec.com.br',
+            cc: 'nfe@agiltec.com.br',
             subject: subject || "NFE",
             text: text || "",
             attachments
