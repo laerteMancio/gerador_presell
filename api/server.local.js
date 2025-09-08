@@ -1,44 +1,54 @@
+// api/server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
+// Rotas
 const generateAuth = require("./routes/generate-auth");
 const links = require("./routes/links");
 const login = require("./routes/login");
 const registerPublic = require("./routes/register-public");
 const usuariosRoutes = require("./routes/usuarios");
-
-
-
-
+const publishPresellRouter = require("./routes/publishPresell");
+const deployRoute = require("./routes/deploy");
+const sendEmailRoute = require("./routes/enviarEmail");
 
 dotenv.config();
 
 const app = express();
 
-// Origem liberada apenas para localhost (uso local)
+// ------------------ CORS ------------------
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://frontend-gerenciador-campanhas.vercel.app"
+  ],
   credentials: true
 }));
 
 app.use(cookieParser());
 app.use(express.json());
 
-// Rotas
+// ------------------ Rotas ------------------
 app.use("/generate-auth", generateAuth);
 app.use("/links", links);
 app.use("/login", login);
 app.use("/register-public", registerPublic);
 app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
+app.use("/publicar-presell", publishPresellRouter);
+app.use("/vercel", deployRoute);
 
+app.use("/send-email", sendEmailRoute);
 
+// ------------------ Listen local ------------------
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Backend rodando localmente na porta ${PORT}`);
+  });
+}
 
-
-// Inicia o servidor local
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando LOCALMENTE na porta ${PORT}`);
-});
+// ------------------ Export ------------------
+module.exports = app;

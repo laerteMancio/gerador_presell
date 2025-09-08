@@ -21,7 +21,9 @@
     "express": "^5.1.0",
     "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "mysql2": "^3.14.0",
+    "nodemailer": "^7.0.6",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {

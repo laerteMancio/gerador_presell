@@ -10,11 +10,25 @@ router.post("/deploy", async (req, res) => {
   try {
     const { userId, nomeProduto, dominio, indexHtml } = req.body;
 
-    if (![userId, nomeProduto, dominio, indexHtml].every(v => v && v.toString().trim() !== "")) {
-      return res.status(400).json({ error: "Dados incompletos. Todos os campos são obrigatórios." });
+    if (
+      ![userId, nomeProduto, dominio, indexHtml].every(
+        (v) => v && v.toString().trim() !== ""
+      )
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "Dados incompletos. Todos os campos são obrigatórios.",
+        });
     }
 
-    const projectName = `${userId}-${nomeProduto}-${dominio}`.toLowerCase();
+    // Remover caracteres inválidos do nome do projeto
+    const projectName = `${userId}-${nomeProduto}-${dominio}`
+  .toLowerCase()
+  .replace(/[^a-z0-9-]/g, "-"); // substitui tudo que não for letra, número ou hífen por '-'
+
+    console.log(projectName);
+    
 
     // 1️⃣ Criar projeto na Vercel
     const projectRes = await fetch(`${VERCEL_API}/v9/projects`, {
@@ -28,7 +42,9 @@ router.post("/deploy", async (req, res) => {
 
     if (!projectRes.ok) {
       const error = await projectRes.json();
-      return res.status(projectRes.status).json({ error: "Erro ao criar projeto", details: error });
+      return res
+        .status(projectRes.status)
+        .json({ error: "Erro ao criar projeto", details: error });
     }
 
     const projectData = await projectRes.json();
@@ -55,7 +71,9 @@ router.post("/deploy", async (req, res) => {
 
     if (!deployRes.ok) {
       const error = await deployRes.json();
-      return res.status(deployRes.status).json({ error: "Erro no deploy", details: error });
+      return res
+        .status(deployRes.status)
+        .json({ error: "Erro no deploy", details: error });
     }
 
     const deployData = await deployRes.json();
@@ -64,17 +82,20 @@ router.post("/deploy", async (req, res) => {
     // 3️⃣ Criar alias (subdomínio)
     let subdomain = null;
     if (dominio) {
-      const aliasRes = await fetch(`${VERCEL_API}/v2/domains/${dominio}/aliases`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${VERCEL_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          alias: `${nomeProduto}.${dominio}`,
-          deploymentId: deployData.id,
-        }),
-      });
+      const aliasRes = await fetch(
+        `${VERCEL_API}/v2/domains/${dominio}/aliases`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${VERCEL_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            alias: `${nomeProduto}.${dominio}`,
+            deploymentId: deployData.id,
+          }),
+        }
+      );
 
       if (!aliasRes.ok) {
         const error = await aliasRes.json();
@@ -99,7 +120,9 @@ router.post("/deploy", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: "Erro ao criar deploy", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Erro ao criar deploy", details: err.message });
   }
 });
 

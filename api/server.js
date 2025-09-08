@@ -12,6 +12,7 @@ const login = require("./routes/login");
 const registerPublic = require("./routes/register-public");
 const usuariosRoutes = require("./routes/usuarios");
 const publishPresellRouter = require("./routes/publishPresell");
+const sendEmailRoute = require("./routes/enviarEmail");
 
 const deployRoute = require("./routes/deploy");
 
@@ -40,6 +41,7 @@ app.use("/register-public", registerPublic);
 app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
 app.use("/publicar-presell", publishPresellRouter);
+app.use("/send-email", sendEmailRoute);
 
 app.use("/vercel", deployRoute);
 

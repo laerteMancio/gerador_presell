@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc versao="4.00" xmlns="http://www.portalfiscal.inf.br/nfe">
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+<infNFe Id="NFe35250845321509000174550000000007641510286100" versao="4.00">
+<ide>
+<cUF>35</cUF>
+<cNF>00001093</cNF>
+<natOp>DEVOLUCAO</natOp>
+<mod>55</mod>
+<serie>0</serie>
+<nNF>764</nNF>
+<dhEmi>2025-08-21T14:33:27-03:00</dhEmi>
+<dhSaiEnt>2025-08-21T14:33:27-03:00</dhSaiEnt>
+<tpNF>1</tpNF>
+<idDest>1</idDest>
+<cMunFG>3550308</cMunFG>
+<tpImp>1</tpImp>
+<tpEmis>1</tpEmis>
+<cDV>4</cDV>
+<tpAmb>1</tpAmb>
+<finNFe>4</finNFe>
+<indFinal>1</indFinal>
+<indPres>1</indPres>
+<procEmi>0</procEmi>
+<verProc>3.10.34</verProc>
+<NFref>
+<refNFe>35250807172011000106550010021706641640709456</refNFe>
+</NFref>
+</ide>
+<emit>
+<CNPJ>45321509000174</CNPJ>
+<xNome>AROMA CULINARIA GH LTDA</xNome>
+<enderEmit>
+<xLgr>RUA SAO BENTO</xLgr>
+<nro>545</nro>
+<xBairro>SE</xBairro>
+<cMun>3550308</cMun>
+<xMun>SAO PAULO</xMun>
+<UF>SP</UF>
+<CEP>1011100</CEP>
+<cPais>1058</cPais>
+<xPais>BRASIL</xPais>
+</enderEmit>
+<IE>134296010114</IE>
+<CRT>1</CRT>
+</emit>
+<dest>
+<CNPJ>07172011000106</CNPJ>
+<xNome>M.P.F.NOVA UNIAO ALIMENTOS EIRELI</xNome>
+<enderDest>
+<xLgr>RUA DR. TIMOTEO PENTEADO</xLgr>
+<nro>4513</nro>
+<xCpl>TERREO</xCpl>
+<xBairro>GUARULHOS</xBairro>
+<cMun>3550308</cMun>
+<xMun>SAO PAULO</xMun>
+<UF>SP</UF>
+<CEP>07061003</CEP>
+<cPais>1058</cPais>
+<xPais>BRASIL</xPais>
+<fone>1149649600</fone>
+</enderDest>
+<indIEDest>1</indIEDest>
+<IE>336742533114</IE>
+</dest>
+<det nItem="1">
+<prod>
+<cProd>00000000000007</cProd>
+<cEAN/>
+<xProd>ACEM RESF-FRIBOI</xProd>
+<NCM>02013000</NCM>
+<CEST>1708900</CEST>
+<CFOP>5202</CFOP>
+<uCom>UN</uCom>
+<qCom>19.1598</qCom>
+<vUnCom>25.9000</vUnCom>
+<vProd>496.24</vProd>
+<cEANTrib/>
+<uTrib>UN</uTrib>
+<qTrib>19.1598</qTrib>
+<vUnTrib>25.9000</vUnTrib>
+<indTot>1</indTot>
+</prod>
+<imposto>
+<ICMS>
+ <ICMSSN500> 
+	<orig>0</orig>
+	<CSOSN>500</CSOSN>
+ </ICMSSN500>
+</ICMS>
+<IPI>
+ <cEnq>999</cEnq>
+<IPITrib>
+ <CST>99</CST>
+ <vBC>496.24</vBC>
+  <pIPI>0.00</pIPI> 
+  <vIPI>0.00</vIPI> 
+</IPITrib>
+</IPI>
+          <PIS>
+          <PISNT>
+           <CST>07</CST>
+          </PISNT>
+           </PIS>
+       <COFINS>
+          <COFINSNT>
+             <CST>07</CST>
+          </COFINSNT>
+        </COFINS>
+</imposto>
+</det>
+<total>
+<ICMSTot>
+<vBC>0.00</vBC>
+<vICMS>0.00</vICMS>
+<vICMSDeson>0.00</vICMSDeson>
+<vFCP>0</vFCP>
+<vBCST>0.00</vBCST>
+<vST>0.00</vST>
+<vFCPST>0</vFCPST>
+<vFCPSTRet>0</vFCPSTRet>
+<qBCMonoRet>0.0000</qBCMonoRet>
+<vICMSMonoRet>0.0000</vICMSMonoRet>
+<vProd>496.24</vProd>
+<vFrete>0.00</vFrete>
+<vSeg>0.00</vSeg>
+<vDesc>0.00</vDesc>
+<vII>0.00</vII>
+<vIPI>0.00</vIPI>
+<vIPIDevol>0</vIPIDevol>
+<vPIS>0.00</vPIS>
+<vCOFINS>0.00</vCOFINS>
+<vOutro>0.00</vOutro>
+<vNF>496.24</vNF>
+<vTotTrib>0.00</vTotTrib>
+</ICMSTot>
+</total>
+<transp>
+<modFrete>9</modFrete>
+</transp>
+<pag>
+<detPag>
+<tPag>90</tPag>
+<vPag>0</vPag>
+</detPag>
+</pag>
+<infAdic>
+<infCpl>Trib aprox  20.84 Federal e  59.55 Estadual Fonte:IBPT/empresometro.com.br801EC4</infCpl>
+</infAdic>
+</infNFe>
+</NFe>
