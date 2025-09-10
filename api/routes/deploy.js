@@ -10,11 +10,19 @@ const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 router.post("/deploy", async (req, res) => {
   let connection;
   try {
-    const { userId, nomeProduto, dominio, indexHtml } = req.body;
+    const { userId, nomeProduto, dominio, indexHtml, cssFiles } = req.body;
 
     // Validação de campos obrigatórios
-    if (![userId, nomeProduto, dominio, indexHtml].every(v => v && v.toString().trim() !== "")) {
-      return res.status(400).json({ error: "Dados incompletos. Todos os campos são obrigatórios." });
+    if (
+      ![userId, nomeProduto, dominio, indexHtml].every(
+        (v) => v && v.toString().trim() !== ""
+      )
+    ) {
+      return res
+        .status(400)
+        .json({
+          error: "Dados incompletos. Todos os campos são obrigatórios.",
+        });
     }
 
     // Ajustar nome do projeto
@@ -24,8 +32,6 @@ router.post("/deploy", async (req, res) => {
       .replace(/--+/g, "-")
       .replace(/^-+|-+$/g, "");
     if (/^[0-9]/.test(projectName)) projectName = "proj-" + projectName;
-
-    console.log("Nome final do projeto:", projectName);
 
     // 1️⃣ Criar projeto na Vercel
     const projectRes = await fetch(`${VERCEL_API}/v9/projects`, {
@@ -39,12 +45,38 @@ router.post("/deploy", async (req, res) => {
 
     if (!projectRes.ok) {
       const error = await projectRes.json();
-      return res.status(projectRes.status).json({ error: "Erro ao criar projeto", details: error });
+      return res
+        .status(projectRes.status)
+        .json({ error: "Erro ao criar projeto", details: error });
     }
+
     const projectData = await projectRes.json();
     const projectId = projectData.id;
 
-    // 2️⃣ Deploy do index.html
+    // 2️⃣ Preparar index.html funcional
+    let finalHtml = indexHtml;
+
+    // Adicionar <meta charset="UTF-8"> se não existir
+    if (!/charset=['"]?utf-8['"]?/i.test(indexHtml)) {
+      finalHtml = finalHtml.replace(/<head>/i, `<head><meta charset="UTF-8">`);
+    }
+
+    // 3️⃣ Preparar arquivos para deploy
+    const files = [{ file: "index.html", data: finalHtml }];
+
+    // Adicionar CSS (espera array de objetos: [{ filename: "style.css", content: "..." }])
+    if (Array.isArray(cssFiles)) {
+      cssFiles.forEach((css) => {
+        if (css.filename && css.content) {
+          files.push({
+            file: css.filename,
+            data: Buffer.from(css.content, "utf-8").toString("base64"),
+          });
+        }
+      });
+    }
+
+    // 4️⃣ Deploy para a Vercel
     const deployRes = await fetch(`${VERCEL_API}/v13/deployments`, {
       method: "POST",
       headers: {
@@ -54,24 +86,25 @@ router.post("/deploy", async (req, res) => {
       body: JSON.stringify({
         name: projectName,
         project: projectId,
-        files: [{ file: "index.html", data: Buffer.from(indexHtml, "utf-8").toString("base64") }]
-
+        files,
       }),
     });
 
     if (!deployRes.ok) {
       const error = await deployRes.json();
-      return res.status(deployRes.status).json({ error: "Erro no deploy", details: error });
+      return res
+        .status(deployRes.status)
+        .json({ error: "Erro no deploy", details: error });
     }
 
     const deployData = await deployRes.json();
     const deployUrl = deployData.url;
 
-    // 3️⃣ Preparar subdomínio pendente
+    // 5️⃣ Preparar subdomínio pendente
     const subdomain = `${nomeProduto}.${dominio}`;
-    const status = "pendente"; // subdomínio ainda não configurado/SSL
+    const status = "pendente";
 
-    // 4️⃣ Inserir no banco
+    // 6️⃣ Inserir no banco
     connection = await getConnection();
     await connection.query(
       `INSERT INTO projetos 
@@ -82,17 +115,19 @@ router.post("/deploy", async (req, res) => {
     connection.release();
 
     return res.json({
-      message: "Deploy realizado com sucesso! Subdomínio pendente de configuração DNS/SSL.",
+      message:
+        "Deploy realizado com sucesso! Subdomínio pendente de configuração DNS/SSL.",
       projectId,
       deployUrl,
       subdomain,
       status,
     });
-
   } catch (err) {
     if (connection) connection.release();
     console.error("Erro geral no deploy:", err);
-    return res.status(500).json({ error: "Erro ao criar deploy", details: err.message });
+    return res
+      .status(500)
+      .json({ error: "Erro ao criar deploy", details: err.message });
   }
 });
 
