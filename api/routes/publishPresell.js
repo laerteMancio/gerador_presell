@@ -15,11 +15,7 @@ router.use((req, res, next) => {
 router.post("/", async (req, res) => {
   try {
     const { userId, productName, domain, formData } = req.body;
-    console.log(userId);
-    console.log(productName);
-    console.log(domain);
-    console.log(formData);
-
+   
     
     if (!userId || !productName || !domain || !formData) {
       return res.status(400).json({ success: false, message: "Dados incompletos" });

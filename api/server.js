@@ -1,9 +1,7 @@
-// api/server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-
 
 // Rotas
 const generateAuth = require("./routes/generate-auth");
@@ -12,16 +10,15 @@ const login = require("./routes/login");
 const registerPublic = require("./routes/register-public");
 const usuariosRoutes = require("./routes/usuarios");
 const publishPresellRouter = require("./routes/publishPresell");
-const sendEmailRoute = require("./routes/enviarEmail");
-
 const deployRoute = require("./routes/deploy");
+const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
+const getUserProjects = require("./routes/getUserProjects");
 
 dotenv.config();
 
 const app = express();
 
 // ------------------ CORS ------------------
-// Permite localhost para desenvolvimento
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -41,12 +38,9 @@ app.use("/register-public", registerPublic);
 app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
 app.use("/publicar-presell", publishPresellRouter);
-app.use("/send-email", sendEmailRoute);
-
 app.use("/vercel", deployRoute);
+app.use("/subdomain", updateSubdomainStatus);
+app.use("/projects", getUserProjects);
 
-
-
-// ------------------ Export ------------------
-// Para Vercel, sem listen()
+// ------------------ Export para Vercel ------------------
 module.exports = app;

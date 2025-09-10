@@ -12,7 +12,8 @@ const registerPublic = require("./routes/register-public");
 const usuariosRoutes = require("./routes/usuarios");
 const publishPresellRouter = require("./routes/publishPresell");
 const deployRoute = require("./routes/deploy");
-const sendEmailRoute = require("./routes/enviarEmail");
+const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
+const getUserProjects = require("./routes/getUserProjects");
 
 dotenv.config();
 
@@ -39,8 +40,9 @@ app.use("/registerPublic", registerPublic);
 app.use("/usuarios", usuariosRoutes);
 app.use("/publicar-presell", publishPresellRouter);
 app.use("/vercel", deployRoute);
+app.use("/subdomain", updateSubdomainStatus);
+app.use("/projects", getUserProjects);
 
-app.use("/send-email", sendEmailRoute);
 
 
 // ------------------ Listen local ------------------
