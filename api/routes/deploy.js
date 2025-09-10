@@ -54,7 +54,8 @@ router.post("/deploy", async (req, res) => {
       body: JSON.stringify({
         name: projectName,
         project: projectId,
-        files: [{ file: "index.html", data: Buffer.from(indexHtml).toString("base64") }],
+        files: [{ file: "index.html", data: Buffer.from(indexHtml, "utf-8").toString("base64") }]
+
       }),
     });
 
