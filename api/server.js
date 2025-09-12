@@ -1,3 +1,4 @@
+// api/server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -13,6 +14,7 @@ const publishPresellRouter = require("./routes/publishPresell");
 const deployRoute = require("./routes/deploy");
 const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
 const getUserProjects = require("./routes/getUserProjects");
+const vercelCheckDomain = require("./routes/vercelCheck"); // <--- rota adicionada
 
 dotenv.config();
 
@@ -41,6 +43,15 @@ app.use("/publicar-presell", publishPresellRouter);
 app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
+app.use("/check-subdomain", vercelCheckDomain); // <--- rota adicionada
 
-// ------------------ Export para Vercel ------------------
+// ------------------ Listen local ------------------
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Backend rodando localmente na porta ${PORT}`);
+  });
+}
+
+// ------------------ Export ------------------
 module.exports = app;
