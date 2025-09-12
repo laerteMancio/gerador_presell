@@ -120,4 +120,84 @@ router.post("/deploy", async (req, res) => {
   }
 });
 
+// Rota para excluir projetos
+router.post("/delete", async (req, res) => {
+  let connection;
+  try {
+    const { projetoId, userId } = req.body;
+
+    if (!projetoId || !userId) {
+      return res.status(400).json({ error: "Dados incompletos" });
+    }
+
+    if (!VERCEL_TOKEN) {
+      return res.status(500).json({ error: "Token Vercel não configurado" });
+    }
+
+    // 1. Buscar projeto no banco
+    connection = await getConnection();
+    const [rows] = await connection.query(
+      `SELECT * FROM projetos WHERE id = ? AND user_id = ?`,
+      [projetoId, userId]
+    );
+
+    if (!rows.length) {
+      connection.release();
+      return res.status(404).json({ error: "Projeto não encontrado" });
+    }
+
+    const projeto = rows[0];
+    const projectIdVercel = projeto.projeto_vercel;
+
+    // 2. Excluir projeto na Vercel
+    const deleteRes = await fetch(
+      `${VERCEL_API}/v9/projects/${projectIdVercel}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${VERCEL_TOKEN}` },
+      }
+    );
+
+    if (!deleteRes.ok && deleteRes.status !== 404) {
+      const error = await deleteRes.json();
+      connection.release();
+      return res
+        .status(deleteRes.status)
+        .json({ error: "Erro ao excluir projeto na Vercel", details: error });
+    }
+
+    // 3. Registrar log de exclusão
+    await connection.query(
+      `INSERT INTO projetos_exclusoes 
+       (projeto_id, projeto_vercel, user_id, nome_produto, dominio) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        projeto.id,
+        projeto.projeto_vercel,
+        userId,
+        projeto.nome_produto,
+        projeto.dominio,
+      ]
+    );
+
+    // 4. Remover registro do banco
+    await connection.query(
+      `DELETE FROM projetos WHERE id = ? AND user_id = ?`,
+      [projetoId, userId]
+    );
+
+    connection.release();
+
+    return res.json({
+      message: "Projeto excluído com sucesso e log registrado",
+    });
+  } catch (err) {
+    if (connection) connection.release();
+    console.error(err);
+    return res
+      .status(500)
+      .json({ error: "Erro ao excluir projeto", details: err.message });
+  }
+});
+
 module.exports = router;
