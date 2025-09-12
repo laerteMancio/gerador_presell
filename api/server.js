@@ -4,15 +4,16 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 
 // Rotas
-const generateAuth = require("./routes/generate-auth");
-const links = require("./routes/links");
-const login = require("./routes/login");
-const registerPublic = require("./routes/register-public");
-const usuariosRoutes = require("./routes/usuarios");
-const publishPresellRouter = require("./routes/publishPresell");
-const deployRoute = require("./routes/deploy");
-const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
-const getUserProjects = require("./routes/getUserProjects");
+const generateAuth = require("../routes/generate-auth");
+const links = require("../routes/links");
+const login = require("../routes/login");
+const registerPublic = require("../routes/register-public");
+const usuariosRoutes = require("../routes/usuarios");
+const publishPresellRouter = require("../routes/publishPresell");
+const deployRoute = require("../routes/deploy");
+const updateSubdomainStatus = require("../routes/updateSubdomainStatus");
+const getUserProjects = require("../routes/getUserProjects");
+const vercelCheckDomain = require("../routes/vercelCheck");
 
 dotenv.config();
 
@@ -41,6 +42,15 @@ app.use("/publicar-presell", publishPresellRouter);
 app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
+app.use("/check-subdomain", vercelCheckDomain);
+
+// ------------------ Listen local ------------------
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Backend rodando localmente na porta ${PORT}`);
+  });
+}
 
 // ------------------ Export para Vercel ------------------
 module.exports = app;
