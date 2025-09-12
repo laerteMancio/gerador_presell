@@ -1,6 +1,5 @@
-// routes/deploy.js
 const express = require("express");
-const fetch = require("node-fetch"); // npm install node-fetch@2
+const fetch = require("node-fetch");
 const { getConnection } = require("./utils.js");
 
 const router = express.Router();
@@ -12,28 +11,29 @@ router.post("/deploy", async (req, res) => {
   try {
     const { userId, nomeProduto, dominio, indexHtml, cssFiles } = req.body;
 
-    // Validação de campos obrigatórios
     if (
       ![userId, nomeProduto, dominio, indexHtml].every(
         (v) => v && v.toString().trim() !== ""
       )
     ) {
-      return res
-        .status(400)
-        .json({
-          error: "Dados incompletos. Todos os campos são obrigatórios.",
-        });
+      return res.status(400).json({ error: "Dados incompletos" });
     }
 
-    // Ajustar nome do projeto
+    if (!VERCEL_TOKEN)
+      return res.status(500).json({ error: "Token Vercel não configurado" });
+
+    // Projeto único com timestamp
+    // Nome do projeto sem timestamp
     let projectName = `${userId}-${nomeProduto}`
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "-")
       .replace(/--+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+    // Se começar com número, adiciona prefixo "proj-"
     if (/^[0-9]/.test(projectName)) projectName = "proj-" + projectName;
 
-    // 1️⃣ Criar projeto na Vercel
+    // Criar projeto
     const projectRes = await fetch(`${VERCEL_API}/v9/projects`, {
       method: "POST",
       headers: {
@@ -53,41 +53,35 @@ router.post("/deploy", async (req, res) => {
     const projectData = await projectRes.json();
     const projectId = projectData.id;
 
-    // 2️⃣ Preparar index.html funcional
-    let finalHtml = indexHtml;
+    // Preparar arquivos
+    const files = [
+      {
+        file: "index.html",
+        data: Buffer.from(indexHtml, "utf-8").toString("base64"),
+        encoding: "base64",
+      },
+    ];
 
-    // Adicionar <meta charset="UTF-8"> se não existir
-    if (!/charset=['"]?utf-8['"]?/i.test(indexHtml)) {
-      finalHtml = finalHtml.replace(/<head>/i, `<head><meta charset="UTF-8">`);
-    }
-
-    // 3️⃣ Preparar arquivos para deploy
-    const files = [{ file: "index.html", data: finalHtml }];
-
-    // Adicionar CSS (espera array de objetos: [{ filename: "style.css", content: "..." }])
     if (Array.isArray(cssFiles)) {
       cssFiles.forEach((css) => {
         if (css.filename && css.content) {
           files.push({
             file: css.filename,
             data: Buffer.from(css.content, "utf-8").toString("base64"),
+            encoding: "base64",
           });
         }
       });
     }
 
-    // 4️⃣ Deploy para a Vercel
+    // Deploy
     const deployRes = await fetch(`${VERCEL_API}/v13/deployments`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${VERCEL_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: projectName,
-        project: projectId,
-        files,
-      }),
+      body: JSON.stringify({ name: projectName, project: projectId, files }),
     });
 
     if (!deployRes.ok) {
@@ -99,24 +93,19 @@ router.post("/deploy", async (req, res) => {
 
     const deployData = await deployRes.json();
     const deployUrl = deployData.url;
-
-    // 5️⃣ Preparar subdomínio pendente
     const subdomain = `${nomeProduto}.${dominio}`;
     const status = "pendente";
 
-    // 6️⃣ Inserir no banco
+    // Inserir no banco
     connection = await getConnection();
     await connection.query(
-      `INSERT INTO projetos 
-        (user_id, nome_produto, dominio, projeto_vercel, url, subdominio, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO projetos (user_id,nome_produto,dominio,projeto_vercel,url,subdominio,status) VALUES (?,?,?,?,?,?,?)`,
       [userId, nomeProduto, dominio, projectId, deployUrl, subdomain, status]
     );
     connection.release();
 
     return res.json({
-      message:
-        "Deploy realizado com sucesso! Subdomínio pendente de configuração DNS/SSL.",
+      message: "Deploy realizado com sucesso",
       projectId,
       deployUrl,
       subdomain,
@@ -124,7 +113,7 @@ router.post("/deploy", async (req, res) => {
     });
   } catch (err) {
     if (connection) connection.release();
-    console.error("Erro geral no deploy:", err);
+    console.error(err);
     return res
       .status(500)
       .json({ error: "Erro ao criar deploy", details: err.message });
