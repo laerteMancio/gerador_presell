@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
     );
 
     // 4️⃣ Busca projetos do usuário
-    // 4️⃣ Busca projetos do usuário
+    
     const [projects] = await conn.execute(
       `SELECT id, nome_produto, dominio, projeto_vercel, url, subdominio, status, created_at
    FROM projetos WHERE user_id = ?`,
