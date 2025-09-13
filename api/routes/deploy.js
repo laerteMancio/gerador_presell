@@ -9,31 +9,39 @@ const VERCEL_TOKEN = process.env.VERCEL_TOKEN;
 router.post("/deploy", async (req, res) => {
   let connection;
   try {
-    const { userId, nomeProduto, dominio, indexHtml, cssFiles } = req.body;
+    let { userId, nomeProduto, dominio, indexHtml, cssFiles } = req.body;
 
-    if (
-      ![userId, nomeProduto, dominio, indexHtml].every(
-        (v) => v && v.toString().trim() !== ""
-      )
-    ) {
+    if (![userId, nomeProduto, dominio, indexHtml].every(v => v && v.toString().trim() !== "")) {
       return res.status(400).json({ error: "Dados incompletos" });
     }
 
-    if (!VERCEL_TOKEN)
-      return res.status(500).json({ error: "Token Vercel não configurado" });
+    if (!VERCEL_TOKEN) return res.status(500).json({ error: "Token Vercel não configurado" });
 
-    // Projeto único com timestamp
-    // Nome do projeto sem timestamp
-    let projectName = `${userId}-${nomeProduto}`
+    // --- Sanitizar nomeProduto ---
+    nomeProduto = nomeProduto
+      .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9-]/g, "-")
-      .replace(/--+/g, "-")
-      .replace(/^-+|-+$/g, "");
+      .replace(/[^a-z0-9-]/g, "-")   // caracteres inválidos por "-"
+      .replace(/--+/g, "-")          // remove duplicação de "-"
+      .replace(/^-+|-+$/g, "");      // remove "-" no início/fim
+
+    // --- Sanitizar domínio preservando pontos ---
+    const cleanDomain = dominio
+      .trim()
+      .toLowerCase()
+      .split('.')                     // separar por pontos
+      .map(part => part.replace(/[^a-z0-9-]/g, "-")) // sanitizar cada parte
+      .join('.');                     // juntar de volta com pontos
+
+    const subdomain = `${nomeProduto}.${cleanDomain}`;
+
+    // Projeto único com userId
+    let projectName = `${userId}-${nomeProduto}`;
 
     // Se começar com número, adiciona prefixo "proj-"
     if (/^[0-9]/.test(projectName)) projectName = "proj-" + projectName;
 
-    // Criar projeto
+    // --- Criar projeto na Vercel ---
     const projectRes = await fetch(`${VERCEL_API}/v9/projects`, {
       method: "POST",
       headers: {
@@ -45,15 +53,13 @@ router.post("/deploy", async (req, res) => {
 
     if (!projectRes.ok) {
       const error = await projectRes.json();
-      return res
-        .status(projectRes.status)
-        .json({ error: "Erro ao criar projeto", details: error });
+      return res.status(projectRes.status).json({ error: "Erro ao criar projeto", details: error });
     }
 
     const projectData = await projectRes.json();
     const projectId = projectData.id;
 
-    // Preparar arquivos
+    // --- Preparar arquivos ---
     const files = [
       {
         file: "index.html",
@@ -63,7 +69,7 @@ router.post("/deploy", async (req, res) => {
     ];
 
     if (Array.isArray(cssFiles)) {
-      cssFiles.forEach((css) => {
+      cssFiles.forEach(css => {
         if (css.filename && css.content) {
           files.push({
             file: css.filename,
@@ -74,7 +80,7 @@ router.post("/deploy", async (req, res) => {
       });
     }
 
-    // Deploy
+    // --- Deploy ---
     const deployRes = await fetch(`${VERCEL_API}/v13/deployments`, {
       method: "POST",
       headers: {
@@ -86,21 +92,17 @@ router.post("/deploy", async (req, res) => {
 
     if (!deployRes.ok) {
       const error = await deployRes.json();
-      return res
-        .status(deployRes.status)
-        .json({ error: "Erro no deploy", details: error });
+      return res.status(deployRes.status).json({ error: "Erro no deploy", details: error });
     }
 
     const deployData = await deployRes.json();
     const deployUrl = deployData.url;
-    const subdomain = `${nomeProduto}.${dominio}`;
-    const status = "pendente";
 
-    // Inserir no banco
+    // --- Inserir no banco ---
     connection = await getConnection();
     await connection.query(
       `INSERT INTO projetos (user_id,nome_produto,dominio,projeto_vercel,url,subdominio,status) VALUES (?,?,?,?,?,?,?)`,
-      [userId, nomeProduto, dominio, projectId, deployUrl, subdomain, status]
+      [userId, nomeProduto, dominio, projectId, deployUrl, subdomain, "pendente"]
     );
     connection.release();
 
@@ -109,16 +111,16 @@ router.post("/deploy", async (req, res) => {
       projectId,
       deployUrl,
       subdomain,
-      status,
+      status: "pendente",
     });
   } catch (err) {
     if (connection) connection.release();
     console.error(err);
-    return res
-      .status(500)
-      .json({ error: "Erro ao criar deploy", details: err.message });
+    return res.status(500).json({ error: "Erro ao criar deploy", details: err.message });
   }
 });
+
+
 
 // Rota para excluir projetos
 router.post("/delete", async (req, res) => {
