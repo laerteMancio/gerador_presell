@@ -21,13 +21,28 @@ dotenv.config();
 const app = express();
 
 // ------------------ CORS ------------------
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://frontend-gerenciador-campanhas.vercel.app"
+];
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://frontend-gerenciador-campanhas.vercel.app"
-  ],
+  origin: function (origin, callback) {
+    // Permite chamadas sem origem (ex.: Postman) ou da lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
   credentials: true
 }));
+
+// Para garantir que o preflight OPTIONS responda
+app.options("*", cors());
+
 
 app.use(cookieParser());
 app.use(express.json());
