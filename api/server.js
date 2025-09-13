@@ -14,8 +14,7 @@ const publishPresellRouter = require("./routes/publishPresell");
 const deployRoute = require("./routes/deploy");
 const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
 const getUserProjects = require("./routes/getUserProjects");
-const vercelCheckDomain = require("./routes/vercelCheck"); 
-
+const vercelCheckDomain = require("./routes/vercelCheck");
 
 const app = express();
 
@@ -24,14 +23,27 @@ app.use(express.json());
 
 dotenv.config();
 
-// CORS básico para qualquer origem (ou você pode limitar)
+const allowedOrigins = [
+  "https://frontend-gerenciador-campanhas.vercel.app", // frontend remoto
+  "http://localhost:5173", // frontend local
+];
+
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // ESSENCIAL para cookies
   })
 );
+
+
 
 // Rota de teste GET
 app.get("/ping", (req, res) => {
@@ -55,7 +67,7 @@ app.use("/publicar-presell", publishPresellRouter);
 app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
-app.use("/check-subdomain", vercelCheckDomain); 
+app.use("/check-subdomain", vercelCheckDomain);
 
 // Exporta o app para Vercel
 module.exports = app;
