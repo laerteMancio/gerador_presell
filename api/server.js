@@ -23,26 +23,34 @@ const app = express();
 // ------------------ CORS ------------------
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://frontend-gerenciador-campanhas.vercel.app"
+  "https://frontend-gerenciador-campanhas.vercel.app",
+  "https://gerador-presell.vercel.app"
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Permite chamadas sem origem (ex.: Postman) ou da lista
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permite chamadas sem origem (ex.: Postman, curl, server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization"
+    ],
+    credentials: true
+  })
+);
 
-// Para garantir que o preflight OPTIONS responda
+// Tratar preflight (OPTIONS)
 app.options("*", cors());
-
 
 app.use(cookieParser());
 app.use(express.json());
