@@ -68,13 +68,6 @@ app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
 app.use("/check-subdomain", vercelCheckDomain); // <--- rota adicionada
 
-// ------------------ Listen local ------------------
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Backend rodando localmente na porta ${PORT}`);
-  });
-}
 
 // ------------------ Export ------------------
 module.exports = app;
