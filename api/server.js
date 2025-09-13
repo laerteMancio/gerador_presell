@@ -14,7 +14,7 @@ const publishPresellRouter = require("./routes/publishPresell");
 const deployRoute = require("./routes/deploy");
 const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
 const getUserProjects = require("./routes/getUserProjects");
-const vercelCheckDomain = require("./routes/vercelCheck"); // <--- rota adicionada
+const vercelCheckDomain = require("./routes/vercelCheck"); 
 
 dotenv.config();
 
@@ -66,8 +66,7 @@ app.use("/publicar-presell", publishPresellRouter);
 app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
-app.use("/check-subdomain", vercelCheckDomain); // <--- rota adicionada
-
+app.use("/check-subdomain", vercelCheckDomain); 
 
 // ------------------ Export ------------------
 module.exports = app;

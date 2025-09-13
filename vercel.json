@@ -5,13 +5,8 @@
   ],
   "routes": [
     {
-      "src": "/:path*",
-      "dest": "api/server.js",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-      }
+      "src": "/(.*)",
+      "dest": "api/server.js"
     }
   ]
 }
