@@ -1,20 +1,21 @@
 // routes/translate.js
 const express = require("express");
 const fetch = require("node-fetch"); // npm install node-fetch@2
+const cors = require("cors");
+
 const router = express.Router();
 
-// Middleware simples para CORS apenas nessa rota
-router.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*"); // ou coloque o domínio do seu frontend
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200); // pré-voo
-  }
-  next();
-});
+// Configurar CORS para aceitar requisições do frontend
+router.use(
+  cors({
+    origin: ["http://localhost:5173", "https://frontend-gerenciador-campanhas.vercel.app"], // frontends permitidos
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // se precisar enviar cookies
+  })
+);
 
-// POST /api/translate
+// POST /translate
 router.post("/", async (req, res) => {
   const { q, target } = req.body;
 
@@ -35,7 +36,7 @@ router.post("/", async (req, res) => {
     });
 
     const data = await response.json();
-    res.json(data); // retorna { translatedText: "..." }
+    res.json(data); // { translatedText: "..." }
   } catch (err) {
     console.error("Erro ao traduzir:", err);
     res.status(500).json({ error: "Falha ao traduzir texto." });
