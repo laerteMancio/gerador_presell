@@ -15,6 +15,7 @@ const deployRoute = require("./routes/deploy");
 const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
 const getUserProjects = require("./routes/getUserProjects");
 const vercelCheckDomain = require("./routes/vercelCheck")
+const teste = require("./routes/test")
 
 dotenv.config();
 
@@ -44,6 +45,8 @@ app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
 app.use("/check-subdomain", vercelCheckDomain)
+app.use("/test", teste)
+
 
 
 // ------------------ Listen local ------------------
