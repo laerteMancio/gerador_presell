@@ -15,6 +15,11 @@ const deployRoute = require("./routes/deploy");
 const updateSubdomainStatus = require("./routes/updateSubdomainStatus");
 const getUserProjects = require("./routes/getUserProjects");
 const vercelCheckDomain = require("./routes/vercelCheck");
+const translateRoute = require("./routes/translate");
+
+// depois das outras rotas
+app.use("/api/translate", translateRoute);
+
 
 const app = express();
 
@@ -68,6 +73,7 @@ app.use("/vercel", deployRoute);
 app.use("/subdomain", updateSubdomainStatus);
 app.use("/projects", getUserProjects);
 app.use("/check-subdomain", vercelCheckDomain);
+app.use("/translate", translateRoute);
 
 // Exporta o app para Vercel
 module.exports = app;
