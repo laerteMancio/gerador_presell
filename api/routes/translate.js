@@ -3,6 +3,17 @@ const express = require("express");
 const fetch = require("node-fetch"); // npm install node-fetch@2
 const router = express.Router();
 
+// Middleware simples para CORS apenas nessa rota
+router.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // ou coloque o domínio do seu frontend
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // pré-voo
+  }
+  next();
+});
+
 // POST /api/translate
 router.post("/", async (req, res) => {
   const { q, target } = req.body;
