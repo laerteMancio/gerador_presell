@@ -34,7 +34,9 @@ router.post("/", async (req, res) => {
   const { q, target } = req.body;
 
   if (!q || !target) {
-    return res.status(400).json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
+    return res
+      .status(400)
+      .json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
   }
 
   try {
@@ -49,7 +51,9 @@ router.post("/", async (req, res) => {
       }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    console.log("Resposta raw:", text);
+
     res.json(data); // { translatedText: "..." }
   } catch (err) {
     console.error("Erro ao traduzir:", err);
