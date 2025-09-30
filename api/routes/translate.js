@@ -1,7 +1,7 @@
 // routes/translate.js
 const express = require("express");
 const router = express.Router();
-const translate = require("@vitalets/google-translate-api"); // npm install @vitalets/google-translate-api
+const GoogleTranslate = require("@vitalets/google-translate-api"); // npm install @vitalets/google-translate-api
 
 // ---------------- CORS ----------------
 const allowedOrigins = [
@@ -29,12 +29,13 @@ router.post("/", async (req, res) => {
   const { q, target } = req.body;
 
   if (!q || !target) {
-    return res
-      .status(400)
-      .json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
+    return res.status(400).json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
   }
 
   try {
+    // ✅ dependendo da versão, use .default
+    const translate = GoogleTranslate.default || GoogleTranslate;
+
     const result = await translate(q, { to: target });
     res.json({ translatedText: result.text });
   } catch (err) {
