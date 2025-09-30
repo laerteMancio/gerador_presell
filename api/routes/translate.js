@@ -1,16 +1,14 @@
 // routes/translate.js
 const express = require("express");
-const fetch = require("node-fetch"); // npm install node-fetch@2
 const router = express.Router();
+const translate = require("@vitalets/google-translate-api"); // npm install @vitalets/google-translate-api
 
 // ---------------- CORS ----------------
-// Permitir frontend local e remoto
 const allowedOrigins = [
-  "http://localhost:5173", // frontend local
-  "https://frontend-gerenciador-campanhas.vercel.app", // frontend remoto adicionado
+  "http://localhost:5173",
+  "https://frontend-gerenciador-campanhas.vercel.app",
 ];
 
-// Middleware CORS
 router.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -21,10 +19,7 @@ router.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Responder preflight
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
+  if (req.method === "OPTIONS") return res.sendStatus(200);
 
   next();
 });
@@ -40,39 +35,12 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    // Endpoint oficial do LibreTranslate
-    const response = await fetch("https://libretranslate.com/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        q,
-        source: "pt",
-        target,
-        format: "text",
-      }),
-    });
-
-    // Verifica se a resposta HTTP é OK
-    if (!response.ok) {
-      const text = await response.text();
-      return res.status(response.status).json({
-        error: `Erro na API de tradução: ${response.status}`,
-        details: text,
-      });
-    }
-
-    // Converte o JSON retornado
-    const data = await response.json();
-
-    // Retorna a tradução
-    res.json(data); // { translatedText: "..." }
+    const result = await translate(q, { to: target });
+    res.json({ translatedText: result.text });
   } catch (err) {
     console.error("Erro ao traduzir:", err);
-
-    // Resposta amigável caso a API pública não esteja acessível
     res.status(500).json({
-      error:
-        "Falha ao traduzir texto. A API de tradução pode estar indisponível.",
+      error: "Falha ao traduzir texto.",
       details: err.message,
     });
   }
