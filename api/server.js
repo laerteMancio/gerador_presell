@@ -17,10 +17,6 @@ const getUserProjects = require("./routes/getUserProjects");
 const vercelCheckDomain = require("./routes/vercelCheck");
 const translateRoute = require("./routes/translate");
 
-// depois das outras rotas
-app.use("/api/translate", translateRoute);
-
-
 const app = express();
 
 // Middleware para parsing JSON
