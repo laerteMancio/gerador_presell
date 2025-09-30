@@ -7,7 +7,7 @@ const router = express.Router();
 // Permitir frontend local e remoto
 const allowedOrigins = [
   "http://localhost:5173", // frontend local
-  "https://frontend-gerenciador-campanhas.vercel.app", // frontend remoto
+  "https://frontend-gerenciador-campanhas.vercel.app", // frontend remoto adicionado
 ];
 
 // Middleware CORS
