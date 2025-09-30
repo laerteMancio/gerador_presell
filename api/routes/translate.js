@@ -29,16 +29,19 @@ router.use((req, res, next) => {
   next();
 });
 
-// ---------------- POST /translate ----------------
+// POST /translate
 router.post("/", async (req, res) => {
   const { q, target } = req.body;
 
   if (!q || !target) {
-    return res.status(400).json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
+    return res
+      .status(400)
+      .json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
   }
 
   try {
-    const response = await fetch("https://translate.argosopentech.com/translate", {
+    // Endpoint oficial do LibreTranslate
+    const response = await fetch("https://libretranslate.com/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -49,18 +52,30 @@ router.post("/", async (req, res) => {
       }),
     });
 
+    // Verifica se a resposta HTTP é OK
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Erro na API de tradução: ${response.status} - ${text}`);
+      return res.status(response.status).json({
+        error: `Erro na API de tradução: ${response.status}`,
+        details: text,
+      });
     }
 
+    // Converte o JSON retornado
     const data = await response.json();
+
+    // Retorna a tradução
     res.json(data); // { translatedText: "..." }
   } catch (err) {
     console.error("Erro ao traduzir:", err);
-    res.status(500).json({ error: "Falha ao traduzir texto." });
+
+    // Resposta amigável caso a API pública não esteja acessível
+    res.status(500).json({
+      error:
+        "Falha ao traduzir texto. A API de tradução pode estar indisponível.",
+      details: err.message,
+    });
   }
 });
-
 
 module.exports = router;
