@@ -34,13 +34,11 @@ router.post("/", async (req, res) => {
   const { q, target } = req.body;
 
   if (!q || !target) {
-    return res
-      .status(400)
-      .json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
+    return res.status(400).json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
   }
 
   try {
-    const response = await fetch("https://libretranslate.de/translate", {
+    const response = await fetch("https://translate.argosopentech.com/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -51,14 +49,18 @@ router.post("/", async (req, res) => {
       }),
     });
 
-    const text = await response.text();
-    console.log("Resposta raw:", text);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Erro na API de tradução: ${response.status} - ${text}`);
+    }
 
+    const data = await response.json();
     res.json(data); // { translatedText: "..." }
   } catch (err) {
     console.error("Erro ao traduzir:", err);
     res.status(500).json({ error: "Falha ao traduzir texto." });
   }
 });
+
 
 module.exports = router;
