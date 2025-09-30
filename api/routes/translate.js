@@ -1,36 +1,59 @@
+// routes/translate.js
 const express = require("express");
-const fetch = require("node-fetch");
+const fetch = require("node-fetch"); // npm install node-fetch@2
 const router = express.Router();
 
-router.all("/translate", async (req, res) => {
-  // CORS
-  res.setHeader("Access-Control-Allow-Origin", "*");
+// ---------------- CORS ----------------
+// Permitir frontend local e remoto
+const allowedOrigins = [
+  "http://localhost:5173", // frontend local
+  "https://frontend-gerenciador-campanhas.vercel.app", // frontend remoto
+];
+
+// Middleware CORS
+router.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Preflight
+  // Responder preflight
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.sendStatus(200);
   }
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
+  next();
+});
 
+// ---------------- POST /translate ----------------
+router.post("/", async (req, res) => {
   const { q, target } = req.body;
-  if (!q || !target) return res.status(400).json({ error: "Parâmetros obrigatórios" });
+
+  if (!q || !target) {
+    return res.status(400).json({ error: "Parâmetros 'q' e 'target' são obrigatórios." });
+  }
 
   try {
     const response = await fetch("https://libretranslate.de/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ q, source: "pt", target, format: "text" }),
+      body: JSON.stringify({
+        q,
+        source: "pt",
+        target,
+        format: "text",
+      }),
     });
+
     const data = await response.json();
-    res.json(data);
+    res.json(data); // { translatedText: "..." }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Falha ao traduzir" });
+    console.error("Erro ao traduzir:", err);
+    res.status(500).json({ error: "Falha ao traduzir texto." });
   }
 });
 
