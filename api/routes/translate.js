@@ -1,7 +1,9 @@
 // routes/translate.js
 const express = require("express");
 const router = express.Router();
-const GoogleTranslate = require("@vitalets/google-translate-api"); // npm install @vitalets/google-translate-api
+const GoogleTranslate = require("@vitalets/google-translate-api");
+const translate = GoogleTranslate.default; // 🔹 versão 9.x precisa do .default
+
 
 // ---------------- CORS ----------------
 const allowedOrigins = [
@@ -33,9 +35,6 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    // ✅ dependendo da versão, use .default
-    const translate = GoogleTranslate.default || GoogleTranslate;
-
     const result = await translate(q, { to: target });
     res.json({ translatedText: result.text });
   } catch (err) {
@@ -46,5 +45,6 @@ router.post("/", async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
